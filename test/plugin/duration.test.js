@@ -1,3 +1,5 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable function-paren-newline */
 import MockDate from 'mockdate'
 import dayjs from '../../src'
 import duration from '../../src/plugin/duration'
@@ -138,7 +140,7 @@ describe('Clone', () => {
   })
 })
 
-describe('Milliseconds', () => {
+test('Milliseconds', () => {
   expect(dayjs.duration(500).milliseconds()).toBe(500)
   expect(dayjs.duration(1500).milliseconds()).toBe(500)
   expect(dayjs.duration(15000).milliseconds()).toBe(0)
@@ -148,7 +150,7 @@ describe('Milliseconds', () => {
 })
 
 describe('Milliseconds', () => {
-  describe('Positive number', () => {
+  test('Positive number', () => {
     expect(dayjs.duration(500).milliseconds()).toBe(500)
     expect(dayjs.duration(1500).milliseconds()).toBe(500)
     expect(dayjs.duration(15000).milliseconds()).toBe(0)
@@ -157,7 +159,7 @@ describe('Milliseconds', () => {
     expect(dayjs.duration(15000).asMilliseconds()).toBe(15000)
   })
 
-  describe('Negative number', () => {
+  test('Negative number', () => {
     expect(dayjs.duration(-500).milliseconds()).toBe(-500)
     expect(dayjs.duration(-1500).milliseconds()).toBe(-500)
     expect(dayjs.duration(-15000).milliseconds()).toBe(0)
@@ -167,7 +169,7 @@ describe('Milliseconds', () => {
   })
 })
 
-describe('Add', () => {
+test('Add', () => {
   const a = dayjs.duration(1, 'days')
   const b = dayjs.duration(2, 'days')
   expect(a.add(b).days()).toBe(3)
@@ -181,7 +183,7 @@ test('Add duration', () => {
   expect(a.add(days).format('YYYY-MM-DD')).toBe('2020-10-03')
 })
 
-describe('Subtract', () => {
+test('Subtract', () => {
   const a = dayjs.duration(3, 'days')
   const b = dayjs.duration(2, 'days')
   expect(a.subtract(b).days()).toBe(1)
@@ -193,7 +195,7 @@ test('Subtract duration', () => {
   expect(a.subtract(days).format('YYYY-MM-DD')).toBe('2020-10-18')
 })
 
-describe('Seconds', () => {
+test('Seconds', () => {
   expect(dayjs.duration(500).seconds()).toBe(0)
   expect(dayjs.duration(1500).seconds()).toBe(1)
   expect(dayjs.duration(15000).seconds()).toBe(15)
@@ -203,13 +205,13 @@ describe('Seconds', () => {
   expect(dayjs.duration(15000).asSeconds()).toBe(15)
 })
 
-describe('Minutes', () => {
+test('Minutes', () => {
   expect(dayjs.duration(100000).minutes()).toBe(1)
   expect(dayjs.duration(61000).minutes()).toBe(1) // 1 minute 1 second
   expect(dayjs.duration(100000).asMinutes().toFixed(2)).toBe('1.67')
 })
 
-describe('Hours', () => {
+test('Hours', () => {
   expect(dayjs.duration(10000000).hours()).toBe(2)
   expect(dayjs.duration(10000000).asHours().toFixed(2)).toBe('2.78')
 })
@@ -226,22 +228,22 @@ describe('Days', () => {
   })
 })
 
-describe('Weeks', () => {
+test('Weeks', () => {
   expect(dayjs.duration(1000000000).weeks()).toBe(1)
   expect(dayjs.duration(1000000000).asWeeks().toFixed(2)).toBe('1.65')
 })
 
-describe('Month', () => {
+test('Month', () => {
   expect(dayjs.duration(10000000000).months()).toBe(3)
   expect(dayjs.duration({ months: 3 }).asMonths()).toBe(3)
 })
 
-describe('Years', () => {
+test('Years', () => {
   expect(dayjs.duration(100000000000).years()).toBe(3)
   expect(dayjs.duration(100000000000).asYears().toFixed(2)).toBe('3.17')
 })
 
-describe('prettyUnit', () => {
+test('prettyUnit', () => {
   const d = dayjs.duration(2, 's')
   expect(d.toISOString()).toBe('PT2S')
   expect(d.as('seconds')).toBe(2)
@@ -274,4 +276,62 @@ describe('Format', () => {
     expect(d.format('Y/YY.YYYYTESTM:MM:D:DD:H:HH:m:mm:s:ss:SSS'))
       .toBe('2/02.0002TEST9:09:6:06:8:08:5:05:1:01:010')
   })
+})
+
+test('setting unit does not set other units', () => {
+  const myDuration = dayjs.duration(59, 'seconds').add(1, 'second')
+  expect(myDuration.seconds()).toBe(60)
+  expect(myDuration.minutes()).toBe(0)
+  expect(myDuration.asSeconds()).toBe(60)
+  expect(myDuration.asMinutes()).toBe(1)
+})
+
+test('issue #1515', () => {
+  expect(dayjs('2020-10-01').add(dayjs.duration(1, 'month'))).toEqual(dayjs('2020-11-01'))
+})
+
+test('issue #1683', () => {
+  expect(dayjs.duration({ days: 30 }).toISOString()).toBe('P30D')
+  expect(dayjs.duration(30, 'd').toISOString()).toBe('P30D')
+  expect(dayjs.duration(30, 'day').toISOString()).toBe('P30D')
+  expect(dayjs.duration(30, 'days').toISOString()).toBe('P30D')
+  expect(dayjs.duration('P30D').toISOString()).toBe('P30D')
+})
+
+test('issue #888', () => {
+  expect(
+    dayjs.duration(dayjs.duration(1, 'minutes').toISOString()).as('minutes')
+  ).toBe(1)
+  expect(dayjs.duration(1, 'minutes').toISOString()).toBe('PT1M')
+})
+
+test('pull #1317', () => {
+  expect(dayjs.duration(1, 'milliseconds').toISOString()).toBe('PT0.001S')
+  expect(dayjs.duration(-1, 'milliseconds').toISOString()).toBe('-PT0.001S')
+})
+
+test('issue #1521', () => {
+  const myDuration = dayjs.duration('Pt3M39.096S')
+  expect(myDuration.format('HH:mm:ss')).toBe('00:03:39')
+  expect(myDuration.format('mm:ss')).toBe('03:39')
+  expect(myDuration.format('ss')).toBe('39')
+  expect(myDuration.format('SSS')).toBe('096')
+})
+
+test('issue #1093', ()=> {
+  expect(dayjs('2020-01-01').add(1, 'month')).toEqual(dayjs('2020-02-01'))
+  expect(dayjs('2020-01-01').add(dayjs.duration(1, 'month'))).toEqual(
+    dayjs('2020-02-01')
+  )
+})
+
+test('issue #865', () => {
+  const myDuration = dayjs.duration('12345', 's')
+  expect(myDuration.hours()).toBe(3)
+  expect(myDuration.minutes()).toBe(25)
+  expect(myDuration.seconds()).toBe(45)
+
+  expect(myDuration.asHours()).toBe(12345 / 60 / 60)
+  expect(myDuration.asMinutes()).toBe(12345 / 60)
+  expect(myDuration.asSeconds()).toBe(12345)
 })
